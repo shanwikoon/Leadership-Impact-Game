@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leadership Impact Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        #game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        #game-area {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        #choices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #feedback {
+            margin-top: 15px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>LSST Learning Simulations</h1>
+        <h2>Leadership Impact Game</h2>
+
+        <div id="intro">
+            <p>In this game, you take the role of a business leader. You will face
+            various leadership challenges, and you must make strategic decisions.
+            Each decision will impact <strong>employee morale</strong>, <strong>team collaboration</strong>,
+            and <strong>overall productivity</strong>. Your goal is to balance these metrics
+            while making effective decisions to achieve the best score.</p>
+        </div>
+
+        <div id="game-area">
+            <table>
+                <tr>
+                    <th>Employee Morale</th>
+                    <th>Team Collaboration</th>
+                    <th>Productivity</th>
+                    <th>Score</th>
+                </tr>
+                <tr>
+                    <td id="morale">50</td>
+                    <td id="collaboration">50</td>
+                    <td id="productivity">50</td>
+                    <td id="score">0</td>
+                </tr>
+            </table>
+
+            <div id="question"></div>
+            <div id="choices"></div>
+            <div id="feedback"></div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            morale: 50,
+            collaboration: 50,
+            productivity: 50,
+            score: 0
+        };
+
+        // Questions array
+        const questions = [
+            {
+                question: "Delegate responsibility or micromanage?",
+                choices: [
+                    { text: "Delegate", action: () => makeDecision(10, 5, 5, 5) },
+                    { text: "Micromanage", action: () => makeDecision(-15, -5, 10, -5) }
+                ]
+            },
+            {
+                question: "Address employee burnout or push for higher targets?",
+                choices: [
+                    { text: "Address burnout", action: () => makeDecision(20, 0, -10, 7) },
+                    { text: "Push for higher targets", action: () => makeDecision(-10, -5, 20, -3) }
+                ]
+            },
+            {
+                question: "Implement remote work or keep teams onsite?",
+                choices: [
+                    { text: "Implement remote work", action: () => makeDecision(15, -5, 0, 5) },
+                    { text: "Keep teams onsite", action: () => makeDecision(-5, 10, 0, 2) }
+                ]
+            },
+            {
+                question: "Support employee learning programs or cut costs?",
+                choices: [
+                    { text: "Support learning", action: () => makeDecision(10, 10, 5, 6) },
+                    { text: "Cut costs", action: () => makeDecision(-10, -10, 15, -2) }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+
+        function makeDecision(moraleChange, collaborationChange, productivityChange, scoreChange) {
+            gameState.morale += moraleChange;
+            gameState.collaboration += collaborationChange;
+            gameState.productivity += productivityChange;
+            gameState.score += scoreChange;
+            
+            // Ensure metrics are within 0-100 range
+            gameState.morale = Math.max(0, Math.min(100, gameState.morale));
+            gameState.collaboration = Math.max(0, Math.min(100, gameState.collaboration));
+            gameState.productivity = Math.max(0, Math.min(100, gameState.productivity));
+            
+            updateDisplay();
+            provideFeedback(moraleChange, collaborationChange, productivityChange);
+            
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                displayQuestion(currentQuestionIndex);
+            } else {
+                endGame();
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('morale').textContent = gameState.morale;
+            document.getElementById('collaboration').textContent = gameState.collaboration;
+            document.getElementById('productivity').textContent = gameState.productivity;
+            document.getElementById('score').textContent = gameState.score;
+        }
+
+        function provideFeedback(moraleChange, collaborationChange, productivityChange) {
+            let feedback = "Decision Outcome:\n";
+            if (moraleChange !== 0) feedback += `Employee Morale ${moraleChange > 0 ? 'increased' : 'decreased'} by ${Math.abs(moraleChange)}\n`;
+            if (collaborationChange !== 0) feedback += `Team Collaboration ${collaborationChange > 0 ? 'increased' : 'decreased'} by ${Math.abs(collaborationChange)}\n`;
+            if (productivityChange !== 0) feedback += `Productivity ${productivityChange > 0 ? 'increased' : 'decreased'} by ${Math.abs(productivityChange)}`;
+            
+            document.getElementById('feedback').textContent = feedback;
+        }
+
+        function displayQuestion(questionIndex) {
+            const question = questions[questionIndex];
+            document.getElementById('question').textContent = question.question;
+            
+            const choicesContainer = document.getElementById('choices');
+            choicesContainer.innerHTML = '';
+            question.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.onclick = choice.action;
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        function endGame() {
+            let finalFeedback = "";
+            if (gameState.score >= 30) {
+                finalFeedback = "Outstanding Leadership! You maintained excellent balance and achieved high morale, collaboration, and productivity.";
+            } else if (gameState.score >= 15) {
+                finalFeedback = "Good Leadership, but room for improvement in balancing your team's morale and collaboration.";
+            } else {
+                finalFeedback = "Challenging Leadership Experience. There was a lack of balance, and your decisions led to challenges in the workplace.";
+            }
+            
+            document.getElementById('question').textContent = "Game Over!";
+            document.getElementById('feedback').textContent = finalFeedback;
+            document.getElementById('choices').innerHTML = "";
+        }
+
+        // Start the game
+        window.onload = () => {
+            displayQuestion(currentQuestionIndex);
+        };
+    </script>
+</body>
+</html>
